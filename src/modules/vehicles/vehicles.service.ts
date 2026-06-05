@@ -18,7 +18,7 @@ export class VehiclesService {
     private cacheService: RedisCacheService,
     private auditService: AuditService,
     private rabbitMQService: RabbitMQService,
-  ) {}
+  ) { }
 
   private buildListCacheKey(query: Record<string, unknown>): string {
     const params = [query.page, query.limit, query.plate, query.year, query.model, query.sortBy, query.order]
@@ -42,7 +42,11 @@ export class VehiclesService {
 
     const vehicle = this.vehiclesRepository.create(payload);
     const saved = await this.vehiclesRepository.save(vehicle);
-    await this.cacheService.delByPattern('vehicles:*');
+    await this.cacheService.set(
+      `vehicles:id:${saved.id}`,
+      JSON.stringify(saved),
+      this.cacheTtl,
+    );
     await this.auditService.log('vehicle.created', payload.created_by, saved);
     await this.rabbitMQService.publish('vehicle.created', saved);
     return saved;
@@ -102,14 +106,18 @@ export class VehiclesService {
   async update(id: string, payload: UpdateVehicleDto) {
     const vehicle = await this.findById(id);
     const whereClauses: any[] = [];
-    if (typeof payload.license_plate === 'string' && payload.license_plate.trim().length > 0) {
-      whereClauses.push({ license_plate: payload.license_plate });
-    }
-    if (typeof payload.renavam === 'string' && payload.renavam.trim().length > 0) {
-      whereClauses.push({ renavam: payload.renavam });
-    }
-    if (typeof payload.chassis === 'string' && payload.chassis.trim().length > 0) {
-      whereClauses.push({ chassis: payload.chassis });
+    if (
+      typeof payload.license_plate === 'string' ||
+      typeof payload.renavam === 'string' ||
+      typeof payload.chassis === 'string'
+    ) {
+      const fields = ['license_plate', 'renavam', 'chassis'] as const;
+
+      for (const field of fields) {
+        if (typeof payload[field] === 'string') {
+          whereClauses.push({ [field]: payload[field] });
+        }
+      }
     }
 
     if (whereClauses.length > 0) {
@@ -126,15 +134,21 @@ export class VehiclesService {
     await this.cacheService.delByPattern('vehicles:*');
     await this.cacheService.del(`vehicles:id:${id}`);
     const updated = await this.vehiclesRepository.findOne({
-    where: { id },
+      where: { id },
     });
     await this.auditService.log('vehicle.updated', vehicle.created_by || 'system', updated);
     await this.rabbitMQService.publish('vehicle.updated', updated);
+    await this.cacheService.set(
+      `vehicles:id:${vehicle.id}`,
+      JSON.stringify(updated),
+      this.cacheTtl,
+    );
     return updated;
   }
 
   async remove(id: string) {
     const vehicle = await this.findById(id);
+    if (!vehicle) throw new NotFoundException('Vehicle not found');
     await this.vehiclesRepository.remove(vehicle);
     await this.cacheService.delByPattern('vehicles:*');
     await this.cacheService.del(`vehicles:id:${id}`);
