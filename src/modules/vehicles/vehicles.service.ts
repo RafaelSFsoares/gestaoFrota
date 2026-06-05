@@ -7,6 +7,7 @@ import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { RedisCacheService } from '../../shared/cache/redis-cache.service';
 import { AuditService } from '../../shared/audit/audit.service';
 import { RabbitMQService } from '../../shared/messaging/rabbitmq.service';
+import { FindOptionsWhere } from 'typeorm';
 
 @Injectable()
 export class VehiclesService {
@@ -18,10 +19,18 @@ export class VehiclesService {
     private cacheService: RedisCacheService,
     private auditService: AuditService,
     private rabbitMQService: RabbitMQService,
-  ) { }
+  ) {}
 
   private buildListCacheKey(query: Record<string, unknown>): string {
-    const params = [query.page, query.limit, query.plate, query.year, query.model, query.sortBy, query.order]
+    const params = [
+      query.page,
+      query.limit,
+      query.plate,
+      query.year,
+      query.model,
+      query.sortBy,
+      query.order,
+    ]
       .map((value) => String(value || ''))
       .join(':');
     return `vehicles:list:${params}`;
@@ -42,11 +51,7 @@ export class VehiclesService {
 
     const vehicle = this.vehiclesRepository.create(payload);
     const saved = await this.vehiclesRepository.save(vehicle);
-    await this.cacheService.set(
-      `vehicles:id:${saved.id}`,
-      JSON.stringify(saved),
-      this.cacheTtl,
-    );
+    await this.cacheService.set(`vehicles:id:${saved.id}`, JSON.stringify(saved), this.cacheTtl);
     await this.auditService.log('vehicle.created', payload.created_by, saved);
     await this.rabbitMQService.publish('vehicle.created', saved);
     return saved;
@@ -71,7 +76,8 @@ export class VehiclesService {
     const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
     const qb = this.vehiclesRepository.createQueryBuilder('vehicle');
 
-    if (query.plate) qb.andWhere('vehicle.license_plate LIKE :plate', { plate: `%${query.plate}%` });
+    if (query.plate)
+      qb.andWhere('vehicle.license_plate LIKE :plate', { plate: `%${query.plate}%` });
     if (query.year) qb.andWhere('vehicle.year = :year', { year: query.year });
     if (query.model) qb.andWhere('vehicle.model_id = :model', { model: query.model });
 
@@ -105,7 +111,7 @@ export class VehiclesService {
 
   async update(id: string, payload: UpdateVehicleDto) {
     const vehicle = await this.findById(id);
-    const whereClauses: any[] = [];
+    const whereClauses: FindOptionsWhere<Vehicle>[] = [];
     if (
       typeof payload.license_plate === 'string' ||
       typeof payload.renavam === 'string' ||
