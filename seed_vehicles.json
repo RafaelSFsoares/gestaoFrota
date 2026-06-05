@@ -1,0 +1,46 @@
+{
+  "brands": [
+    {
+      "id": "4d69ea6d-1b8f-4f4b-9ca0-4baf1b3a1f01",
+      "name": "Volvo",
+      "created_by": null
+    },
+    {
+      "id": "fb0a5c47-8f36-4e1a-b6ab-7c4b803c44a2",
+      "name": "Mercedes-Benz",
+      "created_by": null
+    }
+  ],
+  "models": [
+    {
+      "id": "75dce4fe-8f1a-4f99-8f41-0f0bf34f57c0",
+      "name": "FH 500",
+      "brand_id": "4d69ea6d-1b8f-4f4b-9ca0-4baf1b3a1f01",
+      "created_by": null
+    },
+    {
+      "id": "306f3cf5-d5fd-4c66-a88f-590a8f30b1b5",
+      "name": "Actros 2646",
+      "brand_id": "fb0a5c47-8f36-4e1a-b6ab-7c4b803c44a2",
+      "created_by": null
+    }
+  ],
+  "vehicles": [
+    {
+      "license_plate": "ABC1D23",
+      "chassis": "9BWZZZ377VT004251",
+      "renavam": "12345678901",
+      "year": 2025,
+      "model_id": "75dce4fe-8f1a-4f99-8f41-0f0bf34f57c0",
+      "created_by": "aivacol"
+    },
+    {
+      "license_plate": "XYZ9T87",
+      "chassis": "9BWZZZ377VT004252",
+      "renavam": "12345678902",
+      "year": 2024,
+      "model_id": "306f3cf5-d5fd-4c66-a88f-590a8f30b1b5",
+      "created_by": "aivacol"
+    }
+  ]
+}
