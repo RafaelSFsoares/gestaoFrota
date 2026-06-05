@@ -92,8 +92,8 @@ Body JSON:
 
 ```json
 {
-  "email": "aivacol@example.com",
-  "password": "aivacol123"
+  "email": "testel@example.com",
+  "password": "testel123"
 }
 ```
 
@@ -115,7 +115,7 @@ Body JSON:
 ```json
 {
   "name": "Scania",
-  "created_by": "aivacol123"
+  "created_by": "testel123"
 }
 ```
 
@@ -130,7 +130,7 @@ Body JSON:
 {
   "name": "R 450",
   "brand_id": "<BRAND_ID>",
-  "created_by": "aivacol123"
+  "created_by": "testel123"
 }
 ```
 
@@ -151,7 +151,7 @@ Body JSON para criação de veículo:
   "renavam": "12345678900",
   "year": 2026,
   "model_id": "<MODEL_ID>",
-  "created_by": "aivacol123"
+  "created_by": "testel123"
 }
 ```
 
