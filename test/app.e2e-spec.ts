@@ -109,7 +109,7 @@ describe('App e2e', () => {
       .send({ name: 'TestBrand', created_by: 'aivacol' })
       .expect(201);
 
-    const brandId = brandResponse.body.id;
+    const brandId = brandResponse.body.data.id;
 
     const modelResponse = await request(app.getHttpServer())
       .post('/api/v1/models')
@@ -117,7 +117,7 @@ describe('App e2e', () => {
       .send({ name: 'TestModel', brand_id: brandId, created_by: 'aivacol' })
       .expect(201);
 
-    const modelId = modelResponse.body.id;
+    const modelId = modelResponse.body.data.id;
 
     const vehicleResponse = await request(app.getHttpServer())
       .post('/api/v1/vehicles')
@@ -132,7 +132,7 @@ describe('App e2e', () => {
       })
       .expect(201);
 
-    const vehicleId = vehicleResponse.body.id;
+    const vehicleId = vehicleResponse.body.data.id;
 
     await request(app.getHttpServer())
       .get('/api/v1/vehicles')
